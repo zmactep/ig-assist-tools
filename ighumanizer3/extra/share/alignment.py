@@ -48,7 +48,7 @@ import subprocess
 
 from Bio import AlignIO
 from Bio.Align.Applications import MuscleCommandline
-from extra.share import fasta_tools
+from ighumanizer3.extra.share import fasta_tools
 
 
 def multiple_alignment(fasta_dict):

@@ -3,7 +3,7 @@
 
 __author__ = 'mactep'
 
-from extra.share import fasta_tools
+from ighumanizer3.extra.share import fasta_tools
 
 
 def read_and_filter(filename):
