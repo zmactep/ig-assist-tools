@@ -10,14 +10,6 @@ from Bio.SubsMat import MatrixInfo
 blosum62 = MatrixInfo.blosum62
 pam250 = MatrixInfo.pam250
 
-
-def fix_matrix(matrix):
-    for x, y in matrix.keys():
-        matrix[y, x] = matrix[x, y]
-
-fix_matrix(blosum62)
-fix_matrix(pam250)
-
 #####################################################
 
 # Pairwise

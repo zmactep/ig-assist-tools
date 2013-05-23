@@ -16,7 +16,7 @@ class FastaDict(object):
         return self.seq_dict[seq_name]
 
     def set(self, seq_name, seq_value):
-        self.seq_dict[seq_name] = seq_value
+        self.seq_dict[seq_name] = str(seq_value)
 
     def contains(self, seq_name):
         return seq_name in self.seq_dict
@@ -28,10 +28,11 @@ class FastaDict(object):
 class FastqDict(FastaDict):
     def __init__(self):
         super(FastaDict, self).__init__()
+        self.seq_dict = {}
         self.qual_dict = {}
 
     def set(self, seq_name, seq_value):
-        self.seq_dict[seq_name] = seq_value
+        self.seq_dict[seq_name] = str(seq_value)
         self.qual_dict[seq_name] = []
 
     def setqual(self, seq_name, qual_value):
