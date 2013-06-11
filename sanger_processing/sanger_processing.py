@@ -13,6 +13,7 @@ VH_LEADER_DEFAULT = "ATGAAATACCTATTGCCTACGGCAGCCGCTGGATTGTTATTACTCGCGGCCCAGCCGGC
 
 SANGER_ERROR = "NNNNN"
 
+
 def get_basename(filename_s, filename_t):
     basename = []
     bn_s = os.path.basename(filename_s)
@@ -95,8 +96,10 @@ def read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_lea
         fd_a = fasta_tools.FastaDict()
         fd_a.set(basename + "amino-VL", vla)
         fd_a.set(basename + "amino-VH", vha)
+        print "Ok"
         return fd_n, fd_a
     else:
+        print "Fail"
         return False
 
 
@@ -111,13 +114,17 @@ def read_and_write(filename_s, filename_t, forward_mark, backward_mark, vl_leade
         fasta_tools.write_fasta(path_a, fd[1])
 
 
-def test(directory, out_directory):
+def run_on_directory(directory, out_directory, fm="SeqR", bm="H3b"):
     cache = []
     filenames = list(filter(lambda f: f.endswith(".ab1"), os.listdir(directory)))
     filenames.sort()
     for filename in filenames:
         cache.append(os.path.join(directory, filename))
         if len(cache) == 2:
+            if cache[0][:cache[0].find(fm)] != cache[1][:cache[1].find(bm)] and \
+               cache[0][:cache[0].find(bm)] != cache[1][:cache[1].find(fm)]:
+                cache = [cache[1]]
+                continue
             print("Processing:", cache[0], cache[1])
-            read_and_write(cache[0], cache[1], "SeqR", "H3b", VL_LEADER_DEFAULT, VH_LEADER_DEFAULT, out_directory)
+            read_and_write(cache[0], cache[1], fm, bm, VL_LEADER_DEFAULT, VH_LEADER_DEFAULT, out_directory)
             cache = []
