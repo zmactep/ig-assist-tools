@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __author__ = 'mactep'
 
 import os
@@ -76,11 +78,19 @@ class WidgetSanger(QWidget):
         self.label.setText("READY!")
 
 
-def sanger_run(in_dir, out_dir, fm, bm):
+def sanger_step1(in_dir, out_dir, fm, bm):
     run_on_directory(in_dir, out_dir, fm, bm)
+
+
+def sanger_step2(out_dir):
     vl, vh = load_directory(out_dir)
     save_as_alignment(vl, os.path.join(out_dir, "light-chains-alignment.txt"))
     save_as_alignment(vh, os.path.join(out_dir, "heavy-chains-alignment.txt"))
+
+
+def sanger_run(in_dir, out_dir, fm, bm):
+    sanger_step1(in_dir, out_dir, fm, bm)
+    sanger_step2(out_dir)
 
 
 def main():

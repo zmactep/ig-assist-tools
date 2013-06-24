@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 __author__ = 'mactep'
@@ -96,10 +95,10 @@ def read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_lea
         fd_a = fasta_tools.FastaDict()
         fd_a.set(basename + "amino-VL", vla)
         fd_a.set(basename + "amino-VH", vha)
-        print "Ok"
+        print("Ok")
         return fd_n, fd_a
     else:
-        print "Fail"
+        print("Fail")
         return False
 
 

@@ -3,7 +3,19 @@
 
 __author__ = 'mactep'
 
+from sys import version_info
 from Bio import SeqIO
+from Bio.Seq import Seq
+
+########################################################
+
+
+def encode_to_write(s):
+    # if version_info.major < 3:
+    #     return s
+    # else:
+    #     return bytes(s, "UTF-8")
+    return s
 
 ########################################################
 
@@ -79,43 +91,49 @@ def read_fastq(filename, filter_gaps=True):
 def read_abi(filename, filter_gaps=True):
     return read_qual(filename, "abi", filter_gaps)
 
+
 ########################################################
 
 
-def write_fasta(filename, data, line_length=60):
-    if isinstance(filename, str):
-        fd = open(filename, "w")
-    else:
-        fd = filename
+def write_fasta(filename, data):
+    fd = open(filename, "w")
+    seq_list = []
     for i in data.keys():
-        fd.write(">" + i + "\n")
-        s = 0
-        while s < len(data.get(i)):
-            fd.write(data.get(i)[s:s + line_length] + "\n")
-            s += line_length
-        fd.write("\n")
-    if isinstance(filename, str):
-        fd.close()
+        seq_list.append(SeqIO.SeqRecord(Seq(data.get(i)), id=i, description=""))
+    SeqIO.write(seq_list, fd, "fasta")
+    fd.close()
 
 
 def write_fastq(filename, data):
-    if isinstance(filename, str):
-        fd = open(filename, "w")
-    else:
-        fd = filename
+    fd = open(filename, "w")
     for i in data.keys():
-        fd.write("@" + i + "\n")
-        fd.write(data.get(i) + "\n")
-        fd.write("+\n")
-        for q in data.getqual(i):
-            fd.write(chr(q))
-        fd.write("\n")
-    if isinstance(filename, str):
-        fd.close()
+        seq_list = []
+        for i in data.keys():
+            seq_list.append(SeqIO.SeqRecord(Seq(data.get(i)), id=i, description="",
+                            letter_annotations = {'solexa_quality' : data.getqual(i)}))
+        SeqIO.write(seq_list, fd, "fastq")
+    fd.close()
 
 
 ########################################################
 
+
+def write_fasta_handle(handle, data):
+    seq_list = []
+    for i in data.keys():
+        seq_list.append(SeqIO.SeqRecord(Seq(data.get(i)), id=i, description=""))
+    SeqIO.write(seq_list, handle, "fasta")
+    
+
+def write_fastq_handle(handle, data):
+    for i in data.keys():
+        seq_list = []
+        for i in data.keys():
+            seq_list.append(SeqIO.SeqRecord(Seq(data.get(i)), id=i, description="",
+                            letter_annotations = {'solexa_quality' : data.getqual(i)}))
+        SeqIO.write(seq_list, handle, "fastq")
+
+########################################################
 
 def split_fast(filename, ftype, file_length):
     fd = open(filename, "r")
