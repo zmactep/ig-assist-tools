@@ -45,11 +45,20 @@ if sys.version_info.major == 3:
 else:
     from StringIO import StringIO
 
-def multiple_alignment(fasta_dict):
+TYPE_DEFAULT = 0
+TYPE_UNI_FAST = 1
+TYPE_AMINO_FAST = 2
+TYPE_NUCLEO_FAST = 3
+type2cmd = {TYPE_DEFAULT: MuscleCommandline(clwstrict=True),
+            TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2),
+            TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True, sv=True, distance1="kbit20_3"),
+            TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
+
+def multiple_alignment(fasta_dict, alignment_type=TYPE_DEFAULT):
     in_handle = StringIO()
     fasta_tools.write_fasta_handle(in_handle, fasta_dict)
 
-    muscle_cmd = MuscleCommandline(clwstrict=True)
+    muscle_cmd = type2cmd[alignment_type]
     child = subprocess.Popen(str(muscle_cmd), stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              shell=(sys.platform != "win32"))

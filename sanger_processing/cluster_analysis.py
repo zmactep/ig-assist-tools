@@ -4,7 +4,7 @@ __author__ = 'mactep'
 
 import os
 from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta
-from ighumanizer3.extra.share.alignment import multiple_alignment
+from ighumanizer3.extra.share.alignment import *
 
 CHAIN_MARKER_VL = "VL"
 CHAIN_MARKER_VH = "VH"
@@ -23,8 +23,8 @@ def load_directory(directory):
             elif seq.endswith(CHAIN_MARKER_VH):
                 heavy_chains.set(seq, fd.get(seq))
 
-    light_chains = multiple_alignment(light_chains)
-    heavy_chains = multiple_alignment(heavy_chains)
+    light_chains = multiple_alignment(light_chains, TYPE_UNI_FAST)
+    heavy_chains = multiple_alignment(heavy_chains, TYPE_UNI_FAST)
 
     return light_chains, heavy_chains
 
