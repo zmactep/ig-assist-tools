@@ -4,11 +4,6 @@
 __author__ = 'mactep'
 
 # Matrices
-from sys import version_info
-
-if version_info.major == 3:
-    from io import StringIO
-
 from Bio.SubsMat import MatrixInfo
 
 blosum62 = MatrixInfo.blosum62
@@ -45,11 +40,15 @@ import subprocess
 from Bio import AlignIO
 from Bio.Align.Applications import MuscleCommandline
 from ighumanizer3.extra.share import fasta_tools
-
+if sys.version_info.major == 3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 def multiple_alignment(fasta_dict):
-    # fasta_tools.write_fasta_handle(sys.stdout, fasta_dict)
-    # print("******************************")
+    in_handle = StringIO()
+    fasta_tools.write_fasta_handle(in_handle, fasta_dict)
+
     muscle_cmd = MuscleCommandline(clwstrict=True)
     child = subprocess.Popen(str(muscle_cmd), stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -58,14 +57,13 @@ def multiple_alignment(fasta_dict):
         print("Process was not created!")
         return
 
-    # print("Writing data to MUSCLE")
-    fasta_tools.write_fasta_handle(child.stdin, fasta_dict)
-    child.stdin.close()
-    # print("Data was written")
-
-    if version_info.major == 3:
+    if sys.version_info.major == 3:
+        child.stdin.write(bytes(in_handle.getvalue(), 'utf-8'))
+        child.stdin.close()
         align = AlignIO.read(StringIO("".join(line.decode() for line in child.stdout)), "clustal")
     else:
+        child.stdin.write(in_handle.getvalue())
+        child.stdin.close()
         align = AlignIO.read(child.stdout, "clustal")
     fd = copy.deepcopy(fasta_dict)
     for a in align:
