@@ -119,7 +119,7 @@ def test():
     for i in range(20):
         print("Testing window radius %i (width: %i)" % (i + 1, 2 * (i + 1) + 1))
         r = RegionsClassifier(i + 1)
-        r.train(os.path.abspath(data.train.__path__))
+        r.train(os.path.join(os.path.abspath(data.train.__path__[0]), "regions"))
         result.append([])
         align.append([])
         for j, s in enumerate(seq):

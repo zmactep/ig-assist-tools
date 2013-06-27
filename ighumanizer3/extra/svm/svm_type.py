@@ -1,6 +1,8 @@
 __author__ = 'mactep'
 
 import os
+import random
+import data.train
 import numpy as np
 from Bio import SeqIO
 from collections import Counter
@@ -85,3 +87,26 @@ def construct_train_type_set_fasta(filename, tp, radius):
     t = TrainTypeDataset(radius)
     t.add(sequences, tp)
     return t
+
+
+def test():
+    result = []
+    path = os.path.join(os.path.abspath(data.train.__path__[0]), "type")
+    for i in range(5, 20):
+        print("Testing window radius %i (width: %i)" % (i + 1, 2 * (i + 1) + 1))
+        t = TypeClassifier(i + 1)
+        print("Training SVM")
+        t.train(path, True)
+        result.append([])
+        for tp in ["vh", "vl", "vk"]:
+            print("Validating %s results" % tp)
+            l = []
+            for j in SeqIO.parse(os.path.join(os.path.join(path, "big"), tp + ".train.fa"), "fasta"):
+                if random.random() < 0.1:
+                    l.append(str(j.seq))
+            lr = {}
+            for j in l:
+                pr = num2type[t.predict(j)]
+                lr[pr] = lr.get(pr, 0) + 1
+            result[-1].append(lr)
+    return result
