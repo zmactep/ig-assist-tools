@@ -3,6 +3,7 @@
 __author__ = 'mactep'
 
 import os
+import data.train
 import numpy as np
 from itertools import chain
 from sklearn import svm
@@ -118,7 +119,7 @@ def test():
     for i in range(20):
         print("Testing window radius %i (width: %i)" % (i + 1, 2 * (i + 1) + 1))
         r = RegionsClassifier(i + 1)
-        r.train("/home/mactep/DEV/PycharmProjects/ig-assist-tools/ighumanizer3/extra/data/train")
+        r.train(os.path.abspath(data.train.__path__))
         result.append([])
         align.append([])
         for j, s in enumerate(seq):
