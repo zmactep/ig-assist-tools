@@ -9,15 +9,11 @@ from itertools import chain
 from sklearn import svm
 from ighumanizer3.extra.svm.encodimg_tools import encode_area
 
-REGION_FR1 = 0
-REGION_CDR1 = 1
-REGION_FR2 = 2
-REGION_CDR2 = 3
-REGION_FR3 = 4
-REGION_CDR3 = 5
-REGION_FR4 = 6
-REGION_C = 7
-num2region = [i + str(j) for j in range(1, 4) for i in ["FR", "CDR"]] + ["FR4", "C"]
+
+class RegionsData(object):
+    def __init__(self):
+        self.num2region = [i + str(j) for j in range(1, 4) for i in ["FR", "CDR"]] + ["FR4", "C"]
+        self.train_set = os.path.join(os.path.abspath(data.train.__path__[0]), "regions")
 
 
 class TrainRegionsDataset(object):
@@ -53,6 +49,14 @@ class RegionsClassifier(object):
     def __init__(self, radius):
         self.classifier = svm.SVC(kernel='rbf')
         self.radius = radius
+
+    def train_dataset(self, dataset):
+        _input = []
+        _output = []
+        for _in, _out in dataset.next():
+            _input.append(_in)
+            _output.append(_out)
+        self.classifier.fit(np.asarray(list(chain(*_input)), float), np.asarray(_output, float))
 
     def train(self, path):
         d = filter(lambda s: s.endswith(".train"), os.listdir(path))
@@ -98,7 +102,7 @@ def euristic_fix(t):
     return "".join(seq)
 
 
-def test():
+def test(n=None):
     seq = ["DVVMTQSPSSVTASVGETVTISCKSSQSVAYKSNQKNYLAWYQQRPGQSPRLLIYWASTRTPGIPDRFSGNGSTTDFTMTISSFQPEDAA",
            "QSVLTQPPSVSGTLGNTVTIACAGTSSDVGSGNYVSWYQQLPGTAPKTIIYQDNKRLPGIPDRFSGSKSGNTAFLTISGLQSLDDADYYC",
            "QLVLTQSPSASASLGTAVKLTCTLNSQYSTYYIHWFQQKLGQTPSFLMKVTSDGRVVKGDGVPGRFSGSSSGADRYLTVSNIQSEDEADY",
@@ -116,10 +120,10 @@ def test():
     result = []
     align = []
 
-    for i in range(20):
+    def run(i):
         print("Testing window radius %i (width: %i)" % (i + 1, 2 * (i + 1) + 1))
         r = RegionsClassifier(i + 1)
-        r.train(os.path.join(os.path.abspath(data.train.__path__[0]), "regions"))
+        r.train(RegionsData().train_set)
         result.append([])
         align.append([])
         for j, s in enumerate(seq):
@@ -128,4 +132,11 @@ def test():
             c = sum(int(k[i] == t[i]) for i, _ in enumerate(t)) / len(t)
             result[-1].append(c)
             align[-1].append((k, t))
+
+    if not n:
+        for i in range(20):
+            run(i)
+    else:
+        run(n)
+
     return result, align

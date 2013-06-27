@@ -6,8 +6,11 @@ __author__ = 'mactep'
 # Matrices
 from Bio.SubsMat import MatrixInfo
 
-blosum62 = MatrixInfo.blosum62
-pam250 = MatrixInfo.pam250
+
+class Matrices(object):
+    def __init__(self):
+        self.blosum62 = MatrixInfo.blosum62
+        self.pam250 = MatrixInfo.pam250
 
 #####################################################
 
@@ -40,25 +43,30 @@ import subprocess
 from Bio import AlignIO
 from Bio.Align.Applications import MuscleCommandline
 from ighumanizer3.extra.share import fasta_tools
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     from io import StringIO
 else:
     from StringIO import StringIO
 
-TYPE_DEFAULT = 0
-TYPE_UNI_FAST = 1
-TYPE_AMINO_FAST = 2
-TYPE_NUCLEO_FAST = 3
-type2cmd = {TYPE_DEFAULT: MuscleCommandline(clwstrict=True),
-            TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2),
-            TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True, sv=True, distance1="kbit20_3"),
-            TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
 
-def multiple_alignment(fasta_dict, alignment_type=TYPE_DEFAULT):
+class SeqTypeData(object):
+    def __init__(self):
+        self.TYPE_DEFAULT = 0
+        self.TYPE_UNI_FAST = 1
+        self.TYPE_AMINO_FAST = 2
+        self.TYPE_NUCLEO_FAST = 3
+        self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True),
+                         self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2),
+                         self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
+                                                                 diags=True, sv=True, distance1="kbit20_3"),
+                         self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
+
+
+def multiple_alignment(fasta_dict, alignment_type=SeqTypeData().TYPE_DEFAULT):
     in_handle = StringIO()
     fasta_tools.write_fasta_handle(in_handle, fasta_dict)
 
-    muscle_cmd = type2cmd[alignment_type]
+    muscle_cmd = SeqTypeData().type2cmd[alignment_type]
     child = subprocess.Popen(str(muscle_cmd), stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              shell=(sys.platform != "win32"))
@@ -66,7 +74,7 @@ def multiple_alignment(fasta_dict, alignment_type=TYPE_DEFAULT):
         print("Process was not created!")
         return
 
-    if sys.version_info.major == 3:
+    if sys.version_info[0] == 3:
         child.stdin.write(bytes(in_handle.getvalue(), 'utf-8'))
         child.stdin.close()
         align = AlignIO.read(StringIO("".join(line.decode() for line in child.stdout)), "clustal")
