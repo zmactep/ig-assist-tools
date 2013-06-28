@@ -10,12 +10,12 @@ logging.debug("Client creation.")
 rc = Client()
 dview = rc[:]
 logging.debug("OS import.")
-dview.execute("import os").get()
+dview.execute("import os")
 
-
+logging.debug("OS imported")
 cd = dview.apply(lambda: os.path.abspath(os.curdir)).get()
 logging.debug("Current dir:" + str(cd))
-dview.apply(lambda: os.chdir("/home/yakovlev/devel/ig-assist-tools")).get()
+dview.apply(lambda: os.chdir("/home/yakovlev/devel/ig-assist-tools"))
 cd = dview.apply(lambda: os.path.abspath(os.curdir)).get()
 logging.debug("Current dir (after changing):" + str(cd))
 dview.execute("from ighumanizer3.extra.svm.svm_type import *").get()
