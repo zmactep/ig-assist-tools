@@ -3,6 +3,7 @@ __author__ = 'mactep'
 import os
 import random
 import data.train
+import logging
 import numpy as np
 from Bio import SeqIO
 from collections import Counter
@@ -45,14 +46,21 @@ class TypeClassifier(object):
         self.radius = radius
 
     def train_dataset(self, dataset):
+        logging.debug("Creating arrays")
         _input = []
         _output = []
         for _in, _out in dataset.next():
             _input.append(_in)
             _output.append(_out)
-        self.classifier.fit(np.asarray(list(chain(*_input)), float), np.asarray(_output, float))
+        logging.debug("Arrays created. Data convert.")
+        _input = np.asarray(list(chain(*_input)), float)
+        _output = np.asarray(_output, float)
+        logging.debug("Data fitting.")
+        self.classifier.fit(_input, _output)
+        logging.debug("Data fitted.")
 
     def train(self, path, fasta=False):
+        logging.debug("Dataset generation.")
         d = filter(lambda s: s.endswith(".train" + ".fa" * int(fasta)), os.listdir(path))
         dataset = TrainTypeDataset(self.radius)
         for fn in d:
@@ -62,12 +70,8 @@ class TypeClassifier(object):
                 dataset.merge(construct_train_type_set(filename, tp, self.radius))
             else:
                 dataset.merge(construct_train_type_set_fasta(filename, tp, self.radius))
-        _input = []
-        _output = []
-        for _in, _out in dataset.next():
-            _input.append(_in)
-            _output.append(_out)
-        self.classifier.fit(np.asarray(list(chain(*_input)), float), np.asarray(_output, float))
+        logging.debug("Dataset generated.")
+        self.train_dataset(dataset)
 
     def predict(self, protein):
         result = []
@@ -100,19 +104,18 @@ def construct_train_type_set_fasta(filename, tp, radius):
 def test(n=8):
     result = []
     path = TypeData().train_set
-    print("Testing window radius %i (width: %i)" % (n, 2 * n + 1))
+    logging.debug("Testing window radius %i (width: %i)." % (n, 2 * n + 1))
     t = TypeClassifier(n)
-    print("Training SVM")
+    logging.debug("Training SVM.")
     t.train(path, True)
     for tp in ["vh", "vl", "vk"]:
-        print("Validating %s results" % tp)
-        l = []
+        logging.debug("Validating %s results." % tp)
+        lr = {}
         for j in SeqIO.parse(os.path.join(os.path.join(path, "big"), tp + ".train.fa"), "fasta"):
             if random.random() < 0.1:
-                l.append(str(j.seq))
-        lr = {}
-        for j in l:
-            pr = TypeData().num2type[t.predict(j)]
-            lr[pr] = lr.get(pr, 0) + 1
+                logging.debug("Making a prediction for %s." % str(j.seq))
+                pr = TypeData().num2type[t.predict(str(j.seq))]
+                logging.debug("Prediction was made.")
+                lr[pr] = lr.get(pr, 0) + 1
         result.append(lr)
     return result
