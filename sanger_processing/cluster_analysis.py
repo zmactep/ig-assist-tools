@@ -11,8 +11,8 @@ CHAIN_MARKER_VL = "VL"
 CHAIN_MARKER_VH = "VH"
 
 
-def load_directory(directory):
-    filenames = list(filter(lambda f: f.endswith("-amino.fa"), os.listdir(directory)))
+def load_chains(directory, suffix):
+    filenames = list(filter(lambda f: f.endswith(suffix), os.listdir(directory)))
     heavy_chains = FastaDict()
     light_chains = FastaDict()
     logging.debug("Creating VL and VH arrays")
@@ -24,14 +24,20 @@ def load_directory(directory):
                 light_chains.set(seq, fd.get(seq))
             elif seq.endswith(CHAIN_MARKER_VH):
                 heavy_chains.set(seq, fd.get(seq))
+    return light_chains, heavy_chains
+
+
+def load_directory(directory):
+    light_chains_a, heavy_chains_a = load_chains(directory, "-amino.fa")
+    light_chains_n, heavy_chains_n = load_chains(directory, "-nucleo.fa")
 
     logging.debug("Aligning VL")
-    light_chains = multiple_alignment(light_chains, SeqTypeData().TYPE_UNI_FAST)
+    light_chains = multiple_alignment(light_chains_a, SeqTypeData().TYPE_UNI_FAST)
     logging.debug("Aligning VH")
-    heavy_chains = multiple_alignment(heavy_chains, SeqTypeData().TYPE_UNI_FAST)
+    heavy_chains = multiple_alignment(heavy_chains_a, SeqTypeData().TYPE_UNI_FAST)
     logging.debug("Alignment ok!")
 
-    return light_chains, heavy_chains
+    return light_chains_a, heavy_chains_a, light_chains_n, heavy_chains_n
 
 
 def save_as_alignment(fastadict, path):

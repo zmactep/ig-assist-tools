@@ -8,6 +8,7 @@ import logging
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+from ighumanizer3.extra.share.fasta_tools import write_fasta
 from sanger_processing.sanger_processing import run_on_directory
 from sanger_processing.cluster_analysis import *
 
@@ -84,7 +85,11 @@ def sanger_step1(in_dir, out_dir, fm, bm):
 
 
 def sanger_step2(out_dir):
-    vl, vh = load_directory(out_dir)
+    vl, vh, vln, vhn = load_directory(out_dir)
+    write_fasta(os.path.join(out_dir, "light-chains-amino.fa"), vl)
+    write_fasta(os.path.join(out_dir, "heavy-chains-amino.fa"), vh)
+    write_fasta(os.path.join(out_dir, "light-chains-nucleo.fa"), vln)
+    write_fasta(os.path.join(out_dir, "heavy-chains-nucleo.fa"), vhn)
     save_as_alignment(vl, os.path.join(out_dir, "light-chains-alignment.txt"))
     save_as_alignment(vh, os.path.join(out_dir, "heavy-chains-alignment.txt"))
 
