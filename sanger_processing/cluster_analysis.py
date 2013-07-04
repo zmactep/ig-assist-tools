@@ -3,6 +3,7 @@
 __author__ = 'mactep'
 
 import os
+import sys
 import logging
 from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta, write_fasta
 from ighumanizer3.extra.share.alignment import *
@@ -37,9 +38,15 @@ def load_directory(directory):
     write_fasta(os.path.join(directory, "heavy-chains-nucleo.fa"), heavy_chains_n)
 
     logging.debug("Aligning VL")
-    light_chains = multiple_alignment(light_chains_a, SeqTypeData().TYPE_UNI_FAST)
+    if sys.platform != "win32":
+        light_chains_a = multiple_alignment(light_chains_a, SeqTypeData().TYPE_UNI_FAST)
+    else:
+        light_chains_a = multiple_alignment_use_files(os.path.join(directory, "light-chains-amino.fa"), SeqTypeData().TYPE_UNI_FAST)
     logging.debug("Aligning VH")
-    heavy_chains = multiple_alignment(heavy_chains_a, SeqTypeData().TYPE_UNI_FAST)
+    if sys.platform != "win32":
+        heavy_chains_a = multiple_alignment(heavy_chains_a, SeqTypeData().TYPE_UNI_FAST)
+    else:
+        heavy_chains_a = multiple_alignment_use_files(os.path.join(directory, "heavy-chains-amino.fa"), SeqTypeData().TYPE_UNI_FAST)
     logging.debug("Alignment ok!")
 
     return light_chains_a, heavy_chains_a, light_chains_n, heavy_chains_n
