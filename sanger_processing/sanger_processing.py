@@ -3,6 +3,7 @@
 __author__ = 'mactep'
 
 import os
+import logging
 from Bio.Seq import Seq
 from ighumanizer3.extra.share import fasta_tools, algorithm
 
@@ -62,12 +63,17 @@ def merge_naively(s, t, s_qual=None, t_qual=None):
 
 
 def read_and_merge(filename_s, filename_t, merge_function):
+    logging.debug("read_and_merge")
+    logging.debug("Reading %s" % filename_s)
     sanger_s = fasta_tools.read_abi(filename_s)
+    logging.debug("Sequence %s readed" % filename_s)
+    logging.debug("Reading %s" % filename_t)
     sanger_t = fasta_tools.read_abi(filename_t)
+    logging.debug("Sequence %s readed" % filename_t)
     s, t = construct_strings(sanger_s, sanger_t, True)
     s_qual, t_qual = construct_quality(sanger_s, sanger_t, True)
-    print("S:", s)
-    print("T:", t)
+    logging.debug("S: %s" % s)
+    logging.debug("T: %s" % t)
     if s == SANGER_ERROR and t != SANGER_ERROR:
         return t
     elif s != SANGER_ERROR and t == SANGER_ERROR:
@@ -80,6 +86,7 @@ def read_and_merge(filename_s, filename_t, merge_function):
 
 def read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_leader, vh_leader,
                      merge_function=merge_naively):
+    logging.debug("read_and_process")
     sequence = None
     if forward_mark in filename_s and backward_mark in filename_t:
         sequence = read_and_merge(filename_s, filename_t, merge_function)
@@ -104,6 +111,7 @@ def read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_lea
 
 def read_and_write(filename_s, filename_t, forward_mark, backward_mark, vl_leader, vh_leader, out_dir,
                    merge_function=merge_naively):
+    logging.debug("read_and_write")
     fd = read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_leader, vh_leader, merge_function)
     if fd:
         basename = get_basename(filename_s, filename_t)
@@ -114,16 +122,26 @@ def read_and_write(filename_s, filename_t, forward_mark, backward_mark, vl_leade
 
 
 def run_on_directory(directory, out_directory, fm="SeqR", bm="H3b"):
+    logging.debug("run_on_directory")
     cache = []
     filenames = list(filter(lambda f: f.endswith(".ab1"), os.listdir(directory)))
     filenames.sort()
     for filename in filenames:
-        cache.append(os.path.join(directory, filename))
+        s = os.path.join(directory, filename)
+        cache.append(s)
+        logging.debug("Added to cache: %s" % s)
         if len(cache) == 2:
             if cache[0][:cache[0].find(fm)] != cache[1][:cache[1].find(bm)] and \
                cache[0][:cache[0].find(bm)] != cache[1][:cache[1].find(fm)]:
+                logging.debug("Cache names error. Shifting cache.")
                 cache = [cache[1]]
                 continue
-            print("Processing:", cache[0], cache[1])
-            read_and_write(cache[0], cache[1], fm, bm, VL_LEADER_DEFAULT, VH_LEADER_DEFAULT, out_directory)
+            logging.debug("Processing: %s %s" % (cache[0], cache[1]))
+            try:
+                read_and_write(cache[0], cache[1], fm, bm, VL_LEADER_DEFAULT, VH_LEADER_DEFAULT, out_directory)
+            except:
+                logging.debug("Bad files, skipping.")
+                print("Fail")
+                cache = []
+                continue
             cache = []

@@ -4,6 +4,7 @@ __author__ = 'mactep'
 
 import os
 import sys
+import logging
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -89,16 +90,20 @@ def sanger_step2(out_dir):
 
 
 def sanger_run(in_dir, out_dir, fm, bm):
+    logging.debug("Step 1: Data preprocessing")
     sanger_step1(in_dir, out_dir, fm, bm)
+    logging.debug("Step 2: Data alignment")
     sanger_step2(out_dir)
 
 
 def main():
+    logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG, filename="sanger.log")
     app = QApplication(sys.argv)
 
     ws = WidgetSanger()
     ws.setVisible(True)
-
+    logging.debug("Window opened!")
     sys.exit(app.exec_())
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 __author__ = 'mactep'
 
 import os
+import logging
 from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta
 from ighumanizer3.extra.share.alignment import *
 
@@ -14,6 +15,7 @@ def load_directory(directory):
     filenames = list(filter(lambda f: f.endswith("-amino.fa"), os.listdir(directory)))
     heavy_chains = FastaDict()
     light_chains = FastaDict()
+    logging.debug("Creating VL and VH arrays")
     for filename in filenames:
         name = os.path.join(directory, filename)
         fd = read_fasta(name)
@@ -23,8 +25,11 @@ def load_directory(directory):
             elif seq.endswith(CHAIN_MARKER_VH):
                 heavy_chains.set(seq, fd.get(seq))
 
-    light_chains = multiple_alignment(light_chains, TYPE_UNI_FAST)
-    heavy_chains = multiple_alignment(heavy_chains, TYPE_UNI_FAST)
+    logging.debug("Aligning VL")
+    light_chains = multiple_alignment(light_chains, SeqTypeData().TYPE_UNI_FAST)
+    logging.debug("Aligning VH")
+    heavy_chains = multiple_alignment(heavy_chains, SeqTypeData().TYPE_UNI_FAST)
+    logging.debug("Alignment ok!")
 
     return light_chains, heavy_chains
 
