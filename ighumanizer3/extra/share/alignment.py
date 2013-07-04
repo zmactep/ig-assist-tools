@@ -63,13 +63,14 @@ class SeqTypeData(object):
                                                                      diags=True, sv=True, distance1="kbit20_3"),
                              self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
         else:
-            self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True, input=infile, output="tmp_out.aln"),
-                             self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2, input=infile, output="tmp_out.aln"),
+            self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True, input=infile, out="tmp_out.aln"),
+                             self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2, input=infile, 
+                                                                   out="tmp_out.aln"),
                              self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
                                                                      diags=True, sv=True, distance1="kbit20_3",
-                                                                     input=infile, output="tmp_out.aln"),
+                                                                     input=infile, out="tmp_out.aln"),
                              self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True,
-                                                                      input=infile, output="tmp_out.aln")}
+                                                                      input=infile, out="tmp_out.aln")}
 
 
 def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_DEFAULT):

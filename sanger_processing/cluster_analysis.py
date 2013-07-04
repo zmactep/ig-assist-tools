@@ -38,12 +38,13 @@ def load_directory(directory):
     write_fasta(os.path.join(directory, "heavy-chains-nucleo.fa"), heavy_chains_n)
 
     logging.debug("Aligning VL")
-    if sys.platform != "win32":
+    flag = True
+    if sys.platform != "win32" or flag:
         light_chains_a = multiple_alignment(light_chains_a, SeqTypeData().TYPE_UNI_FAST)
     else:
         light_chains_a = multiple_alignment_use_files(os.path.join(directory, "light-chains-amino.fa"), SeqTypeData().TYPE_UNI_FAST)
     logging.debug("Aligning VH")
-    if sys.platform != "win32":
+    if sys.platform != "win32" or flag:
         heavy_chains_a = multiple_alignment(heavy_chains_a, SeqTypeData().TYPE_UNI_FAST)
     else:
         heavy_chains_a = multiple_alignment_use_files(os.path.join(directory, "heavy-chains-amino.fa"), SeqTypeData().TYPE_UNI_FAST)
