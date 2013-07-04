@@ -4,7 +4,7 @@ __author__ = 'mactep'
 
 import os
 import logging
-from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta
+from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta, write_fasta
 from ighumanizer3.extra.share.alignment import *
 
 CHAIN_MARKER_VL = "VL"
@@ -30,6 +30,11 @@ def load_chains(directory, suffix):
 def load_directory(directory):
     light_chains_a, heavy_chains_a = load_chains(directory, "-amino.fa")
     light_chains_n, heavy_chains_n = load_chains(directory, "-nucleo.fa")
+
+    write_fasta(os.path.join(directory, "light-chains-amino.fa"), light_chains_a)
+    write_fasta(os.path.join(directory, "heavy-chains-amino.fa"), heavy_chains_a)
+    write_fasta(os.path.join(directory, "light-chains-nucleo.fa"), light_chains_n)
+    write_fasta(os.path.join(directory, "heavy-chains-nucleo.fa"), heavy_chains_n)
 
     logging.debug("Aligning VL")
     light_chains = multiple_alignment(light_chains_a, SeqTypeData().TYPE_UNI_FAST)
