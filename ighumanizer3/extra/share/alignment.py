@@ -71,7 +71,7 @@ def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_D
     for r in result:
         iores.write(r)
 
-    align = AlignIO.read(iores, "clustal")
+    align = AlignIO.parse(iores, "clustal")
 
     fd = copy.deepcopy(fasta_dict)
     for a in align:
