@@ -46,48 +46,36 @@ from Bio.Align.Applications import MuscleCommandline
 from ighumanizer3.extra.share import fasta_tools
 if sys.version_info[0] == 3:
     from io import StringIO
+    import iterpipes3 as iterpipes
 else:
     from StringIO import StringIO
+    import iterpipes
 
 
 class SeqTypeData(object):
-    def __init__(self, infile=None):
+    def __init__(self):
         self.TYPE_DEFAULT = 0
         self.TYPE_UNI_FAST = 1
         self.TYPE_AMINO_FAST = 2
         self.TYPE_NUCLEO_FAST = 3
-        if not infile:
-            self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True),
-                             self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2),
-                             self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
-                                                                     diags=True, sv=True, distance1="kbit20_3"),
-                             self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
-        else:
-            self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True, input=infile, out="tmp_out.aln"),
-                             self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2, input=infile, 
-                                                                   out="tmp_out.aln"),
-                             self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
-                                                                     diags=True, sv=True, distance1="kbit20_3",
-                                                                     input=infile, out="tmp_out.aln"),
-                             self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True,
-                                                                      input=infile, out="tmp_out.aln")}
-
+        self.type2cmd = {self.TYPE_DEFAULT: MuscleCommandline(clwstrict=True),
+                         self.TYPE_UNI_FAST: MuscleCommandline(clwstrict=True, maxiters=2),
+                         self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
+                                                                 diags=True, sv=True, distance1="kbit20_3"),
+                         self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
 
 def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_DEFAULT):
-    muscle_cmd = SeqTypeData(file_input).type2cmd[alignment_type]
-    child = subprocess.Popen(str(muscle_cmd),stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             shell=(sys.platform != "win32"))
-    if not child:
-        print("Process was not created!")
-        return
+    muscle_cmd = SeqTypeData().type2cmd[alignment_type]
+    result = iterpipes.run(iterpipes.linecmd(str(muscle_cmd) + " -in " + file_input))
+    iores = StringIO()
+    for r in result:
+        iores.write(r)
 
-    align = AlignIO.read("tmp_out.aln", "clustal")
+    align = AlignIO.read(iores, "clustal")
 
     fd = copy.deepcopy(fasta_dict)
     for a in align:
         fd.set(a.id, str(a.seq))
-
-    os.unlink("tmp_out.aln")
 
     return fd
 
