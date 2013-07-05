@@ -66,7 +66,7 @@ class SeqTypeData(object):
 
 def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_DEFAULT):
     muscle_cmd = SeqTypeData().type2cmd[alignment_type]
-    result = iterpipes.run(iterpipes.linecmd(str(muscle_cmd) + " -in " + file_input))
+    result = iterpipes.run(iterpipes.linecmd(str(muscle_cmd) + " -in \"" + file_input + "\""))
     iores = StringIO()
     for r in result:
         iores.write(r)
