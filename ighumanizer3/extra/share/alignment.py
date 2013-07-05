@@ -73,7 +73,7 @@ def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_D
 
     align = AlignIO.parse(iores, "clustal")
 
-    fd = copy.deepcopy(fasta_dict)
+    fd = fasta_tools.read_fasta(file_input)
     for a in align:
         fd.set(a.id, str(a.seq))
 
