@@ -64,6 +64,7 @@ class SeqTypeData(object):
                                                                  diags=True, sv=True, distance1="kbit20_3"),
                          self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
 
+
 def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_DEFAULT):
     muscle_cmd = SeqTypeData().type2cmd[alignment_type]
     result = iterpipes.run(iterpipes.linecmd(str(muscle_cmd) + " -in \"" + file_input + "\""))
@@ -73,7 +74,7 @@ def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_D
 
     align = AlignIO.parse(iores, "clustal")
 
-    fd = fasta_tools.read_fasta(file_input)
+    fd = fasta_tools.read_fasta(file_input, False)
     for a in align:
         fd.set(a.id, str(a.seq))
 

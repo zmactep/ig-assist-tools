@@ -4,6 +4,7 @@ __author__ = 'mactep'
 
 import os
 import sys
+import align
 import logging
 from ighumanizer3.extra.share.fasta_tools import FastaDict, read_fasta, write_fasta
 from ighumanizer3.extra.share.alignment import *

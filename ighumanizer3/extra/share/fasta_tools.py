@@ -26,6 +26,12 @@ class FastaDict(object):
     def keys(self):
         return self.seq_dict.keys()
 
+    def __getitem__(self, item):
+        return self.seq_dict[item]
+
+    def __setitem__(self, key, value):
+        self.seq_dict[key] = value
+
 
 class FastqDict(FastaDict):
     def __init__(self):
