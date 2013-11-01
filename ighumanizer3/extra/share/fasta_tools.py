@@ -3,6 +3,8 @@
 
 __author__ = 'mactep'
 
+from collections import Counter
+
 from Bio import SeqIO
 from Bio.SeqIO import SeqRecord
 from Bio.Seq import Seq
@@ -25,6 +27,9 @@ class FastaDict(object):
 
     def keys(self):
         return self.seq_dict.keys()
+
+    def __contains__(self, item):
+        return item in self.seq_dict
 
     def __getitem__(self, item):
         return self.seq_dict[item]
@@ -53,6 +58,40 @@ class FastqDict(FastaDict):
 
     def getqual(self, seq_name):
         return self.qual_dict[seq_name]
+
+
+########################################################
+
+
+def get_consensus_letter(fasta, xletter):
+    result = []
+    keys = fasta.keys()
+    ll = len(fasta.get(keys[0]))
+    for key in keys:
+        if len(fasta.get(key)) != ll:
+            return ""
+    for i in range(ll):
+        letter, count = Counter(fasta.get(key)[i] for key in keys).most_common(1)[0]
+        if count >= len(keys) * 0.5:
+            result.append(letter)
+        else:
+            result.append(xletter)
+    return "".join(result)
+
+
+def get_consensus_amino(fasta):
+    return get_consensus_letter(fasta, 'X')
+
+
+def get_consensus_nucleo(fasta):
+    return get_consensus_letter(fasta, 'N')
+
+
+########################################################
+
+
+def fasta_from_keylist(fasta, keylist):
+    return {key: fasta.get(key) for key in keylist if key in fasta}
 
 
 ########################################################

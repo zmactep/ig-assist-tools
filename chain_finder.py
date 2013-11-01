@@ -8,10 +8,7 @@ import logging
 from PyQt4.QtGui import *
 from PyQt4.Qt import pyqtSlot
 
-from sanger_processing.sanger_processing import run_on_directory
-from sanger_processing.cluster_analysis import *
-# from cluster_processing.cluster_info import process
-# from cluster_processing.heavy_light_processing import hl_process
+from vh_finder.vh_find import process
 
 
 class WidgetSanger(QWidget):
@@ -35,17 +32,13 @@ class WidgetSanger(QWidget):
         self.lay2.addWidget(self.lineout)
         self.lay2.addWidget(self.buttout)
 
-        self.lay3 = QHBoxLayout()
-        self.lay31 = QVBoxLayout()
-        self.lay32 = QVBoxLayout()
-        self.lay31.addWidget(QLabel("Forward:"))
-        self.lay32.addWidget(QLabel("Backward:"))
-        self.forward = QLineEdit("SeqR")
-        self.backward = QLineEdit("H3b")
-        self.lay31.addWidget(self.forward)
-        self.lay32.addWidget(self.backward)
-        self.lay3.addLayout(self.lay31)
-        self.lay3.addLayout(self.lay32)
+        self.lay3 = QVBoxLayout()
+        self.lay3.addWidget(QLabel("Min protein length:"))
+        self.spinmin = QSpinBox(self)
+        self.spinmin.setMinimum(0)
+        self.spinmin.setMaximum(500)
+        self.spinmin.setValue(100)
+        self.lay3.addWidget(self.spinmin)
 
         self.buttok = QPushButton("Ok")
 
@@ -76,39 +69,13 @@ class WidgetSanger(QWidget):
 
     @pyqtSlot(name="run")
     def run(self):
-        sanger_run(str(self.linein.text()), str(self.lineout.text()),
-                   str(self.forward.text()), str(self.backward.text()))
+        process(str(self.linein.text()), str(self.lineout.text()), int(self.spinmin.value()))
         self.label.setText("READY!")
-
-
-def sanger_step1(in_dir, out_dir, fm, bm):
-    run_on_directory(in_dir, out_dir, fm, bm)
-
-
-def sanger_step2(out_dir):
-    vl, vh, vln, vhn, common = load_directory(out_dir)
-    save_as_alignment(vl, os.path.join(out_dir, common + "light-chains-alignment.txt"))
-    save_as_alignment(vh, os.path.join(out_dir, common + "heavy-chains-alignment.txt"))
-    save_as_alignment(vln, os.path.join(out_dir, common + "light-chains-n-alignment.txt"))
-    save_as_alignment(vhn, os.path.join(out_dir, common + "heavy-chains-n-alignment.txt"))
-
-    # analysis_dir = "analysis"
-    # prct = False
-    # process(out_dir, analysis_dir, prct)
-    # hl_process(os.path.join(out_dir, analysis_dir), prct)
-    #draw_light_heavy_graph(out_dir)
-
-
-def sanger_run(in_dir, out_dir, fm, bm):
-    logging.debug("Step 1: Data preprocessing")
-    sanger_step1(in_dir, out_dir, fm, bm)
-    logging.debug("Step 2: Data alignment")
-    sanger_step2(out_dir)
 
 
 def main():
     logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG, filename="sanger.log")
+                        level=logging.DEBUG, filename="finder.log")
     app = QApplication(sys.argv)
 
     ws = WidgetSanger()

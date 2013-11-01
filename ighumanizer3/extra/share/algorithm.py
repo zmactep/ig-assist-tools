@@ -2,6 +2,7 @@
 
 __author__ = 'mactep'
 
+import os
 import numpy as np
 
 
@@ -25,3 +26,14 @@ def longest_common_substring(src, dst):
             else:
                 c[i, j] = 0
     return src_m, dst_m
+
+
+def get_common_name(directory, suffix):
+    filenames = list(filter(lambda f: f.endswith(suffix), os.listdir(directory)))
+    if not filenames:
+        return ""
+    common = filenames[0]
+    for i in xrange(len(filenames)):
+        while not filenames[i].startswith(common):
+            common = common[:-1]
+    return common

@@ -97,8 +97,8 @@ def read_and_process(filename_s, filename_t, forward_mark, backward_mark, vl_lea
         vla, vha = get_igva(vl, vh)
         basename = get_basename(filename_s, filename_t)
         fd_n = fasta_tools.FastaDict()
-        fd_n.set(basename + "-VL", vl)
-        fd_n.set(basename + "-VH", vh)
+        fd_n.set(basename + "nucleo-VL", vl)
+        fd_n.set(basename + "nucleo-VH", vh)
         fd_a = fasta_tools.FastaDict()
         fd_a.set(basename + "amino-VL", vla)
         fd_a.set(basename + "amino-VH", vha)
@@ -131,6 +131,7 @@ def run_on_directory(directory, out_directory, fm="SeqR", bm="H3b"):
         cache.append(s)
         logging.debug("Added to cache: %s" % s)
         if len(cache) == 2:
+            logging.debug("Cache: {0} {1}".format(cache[0], cache[1]))
             if cache[0][:cache[0].find(fm)] != cache[1][:cache[1].find(bm)] and \
                cache[0][:cache[0].find(bm)] != cache[1][:cache[1].find(fm)]:
                 logging.debug("Cache names error. Shifting cache.")

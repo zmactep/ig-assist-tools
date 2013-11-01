@@ -63,22 +63,27 @@ class SeqTypeData(object):
                          self.TYPE_AMINO_FAST: MuscleCommandline(clwstrict=True, maxiters=1,
                                                                  diags=True, sv=True, distance1="kbit20_3"),
                          self.TYPE_NUCLEO_FAST: MuscleCommandline(clwstrict=True, maxiters=1, diags=True)}
+        self.type2cmd_f = {self.TYPE_DEFAULT: MuscleCommandline(),
+                           self.TYPE_UNI_FAST: MuscleCommandline(maxiters=2),
+                           self.TYPE_AMINO_FAST: MuscleCommandline(maxiters=1,
+                                                                   diags=True, sv=True, distance1="kbit20_3"),
+                           self.TYPE_NUCLEO_FAST: MuscleCommandline(maxiters=1, diags=True)}
 
 
 def multiple_alignment_use_files(file_input, alignment_type=SeqTypeData().TYPE_DEFAULT):
-    muscle_cmd = SeqTypeData().type2cmd[alignment_type]
+    muscle_cmd = SeqTypeData().type2cmd_f[alignment_type]
     result = iterpipes.run(iterpipes.linecmd(str(muscle_cmd) + " -in \"" + file_input + "\""))
-    iores = StringIO()
-    for r in result:
-        iores.write(r)
-
-    align = AlignIO.parse(iores, "clustal")
-
-    fd = fasta_tools.read_fasta(file_input, False)
-    for a in align:
-        fd.set(a.id, str(a.seq))
-
-    return fd
+    result_list = []
+    for i in result:
+        result_list.append(i.strip())
+    # iores = StringIO()
+    # for i in result_list:
+    #     print(i[0])
+    #     iores.write(i)
+    name = file_input[:file_input.rfind('.')] + "-aligned.fa"
+    with open(name, "wt") as tmpfd:
+        tmpfd.write("\n".join(result_list))
+    return fasta_tools.read_fasta(name, False)
 
 
 def multiple_alignment(fasta_dict, alignment_type=SeqTypeData().TYPE_DEFAULT):
